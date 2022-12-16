@@ -9,8 +9,8 @@ exports.sendMail = async function ({name,email, body, subject}) {
     const msg = {
         to: email,
         from: {
-            name: `Tom`,
-            email: 'tom@nyeglommenrevisjon.com'
+            name: `Divesh`,
+            email: 'divesh.24747@lpu.co.in'
         }, 
         substitutions: {
             name: name,
