@@ -15,7 +15,7 @@ async function getAllLists(req, res) {
         Data: null,
     };
     try {
-        let result = await lists.find();
+        let result = await lists.find({ userId: req.user._id });
         respObj.Data = result;
         respObj.IsSuccess = true;
         return res.status(200).json(respObj);
@@ -32,7 +32,7 @@ async function addStudentsToList(req, res) {
         IsSuccess: false,
         Message: "ok",
         Data: null,
-    }; 
+    };
     try {
 
         console.log("file", req.file);
@@ -52,13 +52,13 @@ async function addStudentsToList(req, res) {
             let notUploadedData = [];
             fs.readFile(req.file.path, "utf8", async function (err, fileData) {
                 let x = fileData.split(/\r\n|\n/);
-                console.log("x: ",x);
+                console.log("x: ", x);
                 for (let i = 0; i < x.length - 1; i++) {
                     if (i == 0) {
                         headMatch.push(x[i].split(","));
                     } else list.push(x[i].split(","));
                 }
-                console.log("list: ",list)
+                console.log("list: ", list)
 
                 if (list.length > 0) {
                     let listNo;
@@ -73,7 +73,8 @@ async function addStudentsToList(req, res) {
                     console.log(listNo);
                     let listEntry = await new lists({
                         listNumber: listNo,
-                        name: req.params.name
+                        name: req.params.name,
+                        userId: req.user._id
                     }).save();
 
                     list.map(async (element, i) => {
@@ -132,7 +133,7 @@ async function getAllEmailRecords(req, res) {
         Data: null,
     };
     try {
-        let studentsData = await emailRecords.find({ }).populate('listId');
+        let studentsData = await emailRecords.find({ userId: req.user._id }).populate('listId');
 
         respObj.Data = studentsData;
         respObj.IsSuccess = true;
@@ -156,10 +157,10 @@ async function sendMailToStudents(req, res) {
         let studentsData = await students.find({ listId: req.params.listId });
 
         let templateBody = req.body.htmlBody;
-        console.log("in send mail ",studentsData)
+        console.log("in send mail ", studentsData)
 
         studentsData.map(async (std) => {
-            console.log("stu: ",std.name)
+            console.log("stu: ", std.name)
             var details = {
                 name: std.name,
             };
@@ -167,10 +168,10 @@ async function sendMailToStudents(req, res) {
                 /\{(.+?)\}/g,
                 (matching, value) => details[value.trim()]
             );
-            await sendMail({ name:std.name,email: std.email, body: replaceName, subject: req.body.subject })
+            await sendMail({ name: std.name, email: std.email, body: replaceName, subject: req.body.subject })
         })
 
-        let emailRec = await new emailRecords({sentOn: new Date(),subject: req.body.subject,listId:req.params.listId }).save();
+        let emailRec = await new emailRecords({ sentOn: new Date(), subject: req.body.subject, listId: req.params.listId, userId: req.user._id }).save();
         respObj.IsSuccess = true;
         return res.status(200).json(respObj);
 

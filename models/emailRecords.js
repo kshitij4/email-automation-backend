@@ -9,7 +9,11 @@ const emailRecordsSchema = new Schema({
         ref: 'lists'
     },
     sentOn: Date,
-    subject: String
+    subject: String,
+    userId: {
+        type: Schema.Types.ObjectId,
+        ref: 'user'
+    }
 },
     {
         timestamps: true

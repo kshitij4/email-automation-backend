@@ -10,6 +10,10 @@ const listsSchema = new Schema({
     listNumber: {
         type: Number
     },
+    userId: {
+        type: Schema.Types.ObjectId,
+        ref: 'user'
+    }
 });
 
 module.exports = mongoose.model('lists', listsSchema);
