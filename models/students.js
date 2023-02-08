@@ -17,6 +17,10 @@ const studentsSchema = new Schema({
     phone: {
         type: String,
     },
+    userId: {
+        type: Schema.Types.ObjectId,
+        ref: 'user'
+    }
 }, 
 );
 

@@ -82,6 +82,7 @@ async function addStudentsToList(req, res) {
                             return;
                         }
                         await new students({
+                            userId: req.user._id,
                             listId: listEntry._id,
                             name: element[0],
                             email: element[1],
@@ -114,6 +115,48 @@ async function getAllStudentsByList(req, res) {
     };
     try {
         let studentsData = await students.find({ listId: req.params.listId });
+
+        respObj.Data = studentsData;
+        respObj.IsSuccess = true;
+        return res.status(200).json(respObj);
+
+    } catch (ex) {
+        console.error(ex);
+        respObj.Message = "Server Error.";
+        return res.status(500).json(respObj);
+    }
+}
+
+async function getAllStudentsByUser(req, res) {
+    let respObj = {
+        IsSuccess: false,
+        Message: "OK..",
+        Data: null,
+    };
+    try {
+        let studentsData = await students.find({ userId: req.user._id });
+
+        respObj.Data = studentsData;
+        respObj.IsSuccess = true;
+        return res.status(200).json(respObj);
+
+    } catch (ex) {
+        console.error(ex);
+        respObj.Message = "Server Error.";
+        return res.status(500).json(respObj);
+    }
+}
+
+async function updateListStudents(req, res) {
+    let respObj = {
+        IsSuccess: false,
+        Message: "OK..",
+        Data: null,
+    };
+    try {
+        console.log(req.body);
+        let studentsData = await students.updateMany({ _id: { $in: req.body.stdIds } },
+            { $set: { listId: req.params.listId } });
 
         respObj.Data = studentsData;
         respObj.IsSuccess = true;
@@ -194,5 +237,7 @@ module.exports = {
     sendMailToStudents,
     downloadSampleEmailTemplate,
     getAllStudentsByList,
-    getAllEmailRecords
+    getAllEmailRecords,
+    getAllStudentsByUser,
+    updateListStudents
 };

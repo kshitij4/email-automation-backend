@@ -26,12 +26,14 @@ router.post('/saveUserData', Users.registerUser)
 router.post('/loginUser', Users.loginUser);
 router.post('/addStudentsToList/:name', uploadImage.single("file"),passport.authenticate('jwt', { session: false }), emailCtrl.addStudentsToList);
 router.post('/sendMailToStudents/:listId',passport.authenticate('jwt', { session: false }),emailCtrl.sendMailToStudents);
+router.post('/updateListStudents/:listId',passport.authenticate('jwt', { session: false }),emailCtrl.updateListStudents);
 
 
 // get request
 router.get('/getAllLists',passport.authenticate('jwt', { session: false }), emailCtrl.getAllLists);
 router.get("/downloadSampleEmailCSV",passport.authenticate('jwt', { session: false }),emailCtrl.downloadSampleEmailTemplate);
 router.get("/getAllStudentsByList/:listId",passport.authenticate('jwt', { session: false }),emailCtrl.getAllStudentsByList);
+router.get("/getAllStudentsByUser",passport.authenticate('jwt', { session: false }),emailCtrl.getAllStudentsByUser);
 router.get("/getAllEmailRecords",passport.authenticate('jwt', { session: false }),emailCtrl.getAllEmailRecords);
 
 
