@@ -223,7 +223,7 @@ async function getAllStudentsFromRecord(req, res) {
         Data: null,
     };
     try {
-        let studentsData = await emailRecords.find({ _id: req.params.recordId }).populate('studentIds');
+        let studentsData = await emailRecords.findOne({ _id: req.params.recordId }).populate('studentIds');
 
         respObj.Data = studentsData;
         respObj.IsSuccess = true;
