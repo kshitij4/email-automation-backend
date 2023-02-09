@@ -8,6 +8,12 @@ const emailRecordsSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'lists'
     },
+    studentIds: [
+        {
+            type: Schema.Types.ObjectId,
+            ref: 'students'
+        }
+    ],
     sentOn: Date,
     subject: String,
     userId: {

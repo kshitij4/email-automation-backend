@@ -158,7 +158,34 @@ async function updateListStudents(req, res) {
         let studentsData = await students.updateMany({ _id: { $in: req.body.stdIds } },
             { $set: { listId: req.params.listId } });
 
+        let studentsData2 = await students.updateMany({ _id: { $nin: req.body.stdIds }, 
+            listId: req.params.listId},
+            { $set: { listId: null } });
+
         respObj.Data = studentsData;
+        respObj.IsSuccess = true;
+        return res.status(200).json(respObj);
+
+    } catch (ex) {
+        console.error(ex);
+        respObj.Message = "Server Error.";
+        return res.status(500).json(respObj);
+    }
+}
+
+async function addStudentToList(req, res) {
+    let respObj = {
+        IsSuccess: false,
+        Message: "OK..",
+        Data: null,
+    };
+    try {
+        let std = await new students({...req.body, 
+            listId: req.params.listId,
+            userId: req.user._id
+        }).save()
+
+        respObj.Data = std;
         respObj.IsSuccess = true;
         return res.status(200).json(respObj);
 
@@ -177,6 +204,26 @@ async function getAllEmailRecords(req, res) {
     };
     try {
         let studentsData = await emailRecords.find({ userId: req.user._id }).populate('listId');
+
+        respObj.Data = studentsData;
+        respObj.IsSuccess = true;
+        return res.status(200).json(respObj);
+
+    } catch (ex) {
+        console.error(ex);
+        respObj.Message = "Server Error.";
+        return res.status(500).json(respObj);
+    }
+}
+
+async function getAllStudentsFromRecord(req, res) {
+    let respObj = {
+        IsSuccess: false,
+        Message: "OK..",
+        Data: null,
+    };
+    try {
+        let studentsData = await emailRecords.find({ _id: req.params.recordId }).populate('studentIds');
 
         respObj.Data = studentsData;
         respObj.IsSuccess = true;
@@ -214,7 +261,10 @@ async function sendMailToStudents(req, res) {
             await sendMail({ name: std.name, email: std.email, body: replaceName, subject: req.body.subject })
         })
 
-        let emailRec = await new emailRecords({ sentOn: new Date(), subject: req.body.subject, listId: req.params.listId, userId: req.user._id }).save();
+        let stdIds = studentsData.map(std => std._id);
+
+        let emailRec = await new emailRecords({ sentOn: new Date(), subject: req.body.subject,
+             listId: req.params.listId, userId: req.user._id,studentIds: stdIds }).save();
         respObj.IsSuccess = true;
         return res.status(200).json(respObj);
 
@@ -239,5 +289,7 @@ module.exports = {
     getAllStudentsByList,
     getAllEmailRecords,
     getAllStudentsByUser,
-    updateListStudents
+    updateListStudents,
+    addStudentToList,
+    getAllStudentsFromRecord
 };
