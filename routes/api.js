@@ -28,6 +28,7 @@ router.post('/addStudentsToList/:name', uploadImage.single("file"),passport.auth
 router.post('/sendMailToStudents/:listId',passport.authenticate('jwt', { session: false }),emailCtrl.sendMailToStudents);
 router.post('/updateListStudents/:listId',passport.authenticate('jwt', { session: false }),emailCtrl.updateListStudents);
 router.post('/addStudentToList/:listId',passport.authenticate('jwt', { session: false }),emailCtrl.addStudentToList);
+router.post('/updateStudentData/:stdId',passport.authenticate('jwt', { session: false }),emailCtrl.updateStudentData);
 
 
 

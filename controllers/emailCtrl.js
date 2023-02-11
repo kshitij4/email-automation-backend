@@ -173,6 +173,28 @@ async function updateListStudents(req, res) {
     }
 }
 
+async function updateStudentData(req, res) {
+    let respObj = {
+        IsSuccess: false,
+        Message: "OK..",
+        Data: null,
+    };
+    try {
+        console.log(req.body);
+        let studentsData = await students.updateOne({ _id: req.params.stdId },
+            { $set: { name: req.body.name, email: req.body.email, phone: req.body.phone } });
+
+        respObj.Data = studentsData;
+        respObj.IsSuccess = true;
+        return res.status(200).json(respObj);
+
+    } catch (ex) {
+        console.error(ex);
+        respObj.Message = "Server Error.";
+        return res.status(500).json(respObj);
+    }
+}
+
 async function addStudentToList(req, res) {
     let respObj = {
         IsSuccess: false,
@@ -291,5 +313,6 @@ module.exports = {
     getAllStudentsByUser,
     updateListStudents,
     addStudentToList,
-    getAllStudentsFromRecord
+    getAllStudentsFromRecord,
+    updateStudentData
 };
