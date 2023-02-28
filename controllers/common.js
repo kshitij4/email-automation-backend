@@ -10,7 +10,7 @@ exports.sendMail = async function ({name,email, body, subject}) {
         to: email,
         from: {
             name: `Petter Promowicz`,
-            email: 'trafikk@ekspress-frakt.no'
+            email: 'trafikk@egron.as'
         }, 
         // substitutions: {
         //     name: name,
