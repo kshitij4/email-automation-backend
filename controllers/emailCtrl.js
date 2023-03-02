@@ -225,7 +225,7 @@ async function getAllEmailRecords(req, res) {
         Data: null,
     };
     try {
-        let studentsData = await emailRecords.find({ userId: req.user._id }).populate('listId');
+        let studentsData = await emailRecords.find({ userId: req.user._id }).populate('listId').sort('-sentOn');
 
         respObj.Data = studentsData;
         respObj.IsSuccess = true;
