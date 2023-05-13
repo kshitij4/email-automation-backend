@@ -5,6 +5,8 @@ require("../config/db");
 require("../config/passport")(passport);
 const Users = require("../controllers/users");
 const emailCtrl = require("../controllers/emailCtrl");
+const bookingCtrl = require("../controllers/bookingCtrl");
+
 const multer = require("multer");
 
 /* *****Defining Admin POST Routes***** */
@@ -39,6 +41,22 @@ router.get("/getAllStudentsByList/:listId",passport.authenticate('jwt', { sessio
 router.get("/getAllStudentsByUser",passport.authenticate('jwt', { session: false }),emailCtrl.getAllStudentsByUser);
 router.get("/getAllEmailRecords",passport.authenticate('jwt', { session: false }),emailCtrl.getAllEmailRecords);
 router.get("/getAllStudentsFromRecord/:recordId",passport.authenticate('jwt', { session: false }),emailCtrl.getAllStudentsFromRecord);
+
+
+//booking Routes
+router.post('/registerAdmin', Users.registerAdmin)
+router.post('/loginAdmin', Users.loginAdmin);
+router.post('/registerDriver', Users.registerDriver)
+router.post('/loginDriver', Users.loginDriver);
+
+router.post('/addTruck',passport.authenticate('admin', { session: false }), bookingCtrl.addTruck);
+router.post('/addTrailer',passport.authenticate('admin', { session: false }), bookingCtrl.addTrailer);
+router.post('/bookItem/:type/:id',passport.authenticate('driver', { session: false }), bookingCtrl.bookItem);
+router.post('/deliverItem/:bookingId',passport.authenticate('driver', { session: false }), bookingCtrl.deliverItem);
+
+router.get("/getAllTrailers",passport.authenticate('driver', { session: false }),bookingCtrl.getAllTrailers);
+router.get("/getAllTrucks",passport.authenticate('driver', { session: false }),bookingCtrl.getAllTrucks);
+
 
 
 module.exports = router;
