@@ -63,6 +63,13 @@ async function bookItem(req, res) {
         Data: null,
     };
     try {
+        if (req.user.currBooking) {
+            let alreadyBook = await Booking.findById(req.user.currBooking);
+            if (alreadyBook.status == "pending") {
+                respObj.Message = "You already have a booking";
+                return res.status(402).json(respObj);
+            }
+        }
         let itemData;
         if (req.params.type == "truck") {
             itemData = await Truck.findOne({
@@ -81,13 +88,12 @@ async function bookItem(req, res) {
             return res.status(402).json(respObj);
         }
 
-
         let booking = await new Booking({
             driverId: req.user._id,
             [req.params.type + "Id"]: req.params.id,
             startTime: new Date(),
             photos: req.body.photos,
-            documents: req.body.documents
+            document: req.body.document
         }).save();
 
         let { truckId, trailerId } = booking;
@@ -97,6 +103,12 @@ async function bookItem(req, res) {
         if (truckId) {
             await Truck.updateOne({ _id: truckId }, { isBooked: true });
         }
+
+        await driver.findByIdAndUpdate(
+            req.user._id,
+            { $set: { currBooking: booking._id } },
+            { new: true }
+        )
 
         respObj.Data = booking;
         respObj.IsSuccess = true;
@@ -119,7 +131,7 @@ async function deliverItem(req, res) {
     try {
         let bookData = await Booking.findById(req.params.bookingId);
 
-        if(bookData.status == 'delivered'){
+        if (bookData.status == 'delivered') {
             respObj.Message = "Already Delivered";
             return res.status(402).json(respObj);
         }
@@ -166,9 +178,7 @@ async function getAllTrucks(req, res) {
         Data: null,
     };
     try {
-        let std = await Truck.find({
-            isBooked: false
-        });
+        let std = await Truck.find({});
 
         respObj.Data = std;
         respObj.IsSuccess = true;
@@ -188,11 +198,87 @@ async function getAllTrailers(req, res) {
         Data: null,
     };
     try {
-        let std = await Trailer.find({
-            isBooked: false
-        });
+        let std = await Trailer.find({});
 
         respObj.Data = std;
+        respObj.IsSuccess = true;
+        return res.status(200).json(respObj);
+
+    } catch (ex) {
+        console.error(ex);
+        respObj.Message = "Server Error.";
+        return res.status(500).json(respObj);
+    }
+}
+
+async function getAllDrivers(req, res) {
+    let respObj = {
+        IsSuccess: false,
+        Message: "OK..",
+        Data: null,
+    };
+    try {
+        let std = await driver.find({}).populate({
+            path: 'currBooking',
+            match: { status: 'pending' },
+            populate: [
+                { path: 'truckId', model: 'Truck' },
+                { path: 'trailerId', model: 'Trailer' }
+            ]
+        }).select('name email phone currBooking');
+
+        respObj.Data = std;
+        respObj.IsSuccess = true;
+        return res.status(200).json(respObj);
+
+    } catch (ex) {
+        console.error(ex);
+        respObj.Message = "Server Error.";
+        return res.status(500).json(respObj);
+    }
+}
+
+async function getDriverDetails(req, res) {
+    let respObj = {
+        IsSuccess: false,
+        Message: "OK..",
+        Data: null,
+    };
+    try {
+        let std = await driver.findOne({ _id: req.params.driverId }).populate({
+            path: 'currBooking',
+            match: { status: 'pending' },
+            populate: [
+                { path: 'truckId', model: 'Truck' },
+                { path: 'trailerId', model: 'Trailer' }
+            ]
+        }).select('name email phone currBooking');
+
+        respObj.Data = std;
+        respObj.IsSuccess = true;
+        return res.status(200).json(respObj);
+
+    } catch (ex) {
+        console.error(ex);
+        respObj.Message = "Server Error.";
+        return res.status(500).json(respObj);
+    }
+}
+
+async function getAllBookings(req, res) {
+    let respObj = {
+        IsSuccess: false,
+        Message: "OK..",
+        Data: null,
+    };
+    try {
+        let bookingsData = await Booking.find({ driverId: req.params.driverId, status: 'delivered' })
+            .populate([
+                { path: 'truckId', model: 'Truck' },
+                { path: 'trailerId', model: 'Trailer' }
+            ]).sort('-startTime');
+
+        respObj.Data = bookingsData;
         respObj.IsSuccess = true;
         return res.status(200).json(respObj);
 
@@ -209,5 +295,8 @@ module.exports = {
     bookItem,
     deliverItem,
     getAllTrailers,
-    getAllTrucks
+    getAllTrucks,
+    getAllDrivers,
+    getDriverDetails,
+    getAllBookings
 };

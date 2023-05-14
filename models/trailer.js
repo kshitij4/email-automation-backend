@@ -12,6 +12,8 @@ const trailerSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     }
+},{
+    timestamps: true
 });
 
 const Trailer = mongoose.model('Trailer', trailerSchema);

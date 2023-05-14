@@ -13,7 +13,9 @@ const Driver = mongoose.Schema({
     password: {
         type: String,
         required: [true, 'Password is required']
-    }
+    },
+    phone: String,
+    currBooking: { type: mongoose.Schema.Types.ObjectId, ref: 'Booking' }
 },
     {
         timestamps: true

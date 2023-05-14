@@ -12,6 +12,8 @@ const truckSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     }
+},{
+    timestamps: true
 });
 
 const Truck = mongoose.model('Truck', truckSchema);

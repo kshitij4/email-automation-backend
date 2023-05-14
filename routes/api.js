@@ -56,6 +56,9 @@ router.post('/deliverItem/:bookingId',passport.authenticate('driver', { session:
 
 router.get("/getAllTrailers",passport.authenticate('driver', { session: false }),bookingCtrl.getAllTrailers);
 router.get("/getAllTrucks",passport.authenticate('driver', { session: false }),bookingCtrl.getAllTrucks);
+router.get("/getAllDrivers",passport.authenticate('admin', { session: false }),bookingCtrl.getAllDrivers);
+router.get("/getDriverDetails",passport.authenticate('admin', { session: false }),bookingCtrl.getDriverDetails);
+
 
 
 
