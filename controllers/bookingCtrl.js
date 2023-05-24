@@ -65,32 +65,37 @@ async function bookItem(req, res) {
     try {
         if (req.user.currBooking) {
             let alreadyBook = await Booking.findById(req.user.currBooking);
-            if (alreadyBook.status == "pending") {
+            if (alreadyBook && alreadyBook?.status == "pending") {
                 respObj.Message = "You already have a booking";
                 return res.status(402).json(respObj);
             }
         }
-        let itemData;
-        if (req.params.type == "truck") {
-            itemData = await Truck.findOne({
-                _id: req.params.id,
-                isBooked: false
-            })
-        } else if (req.params.type == "trailer") {
-            itemData = await Trailer.findOne({
-                _id: req.params.id,
-                isBooked: false
-            })
+
+        let truckData = await Truck.findOne({
+            _id: req.params.truckId,
+            isBooked: false
+        })
+
+        if (!truckData || truckData == null) {
+            respObj.Message = "Truck not available";
+            return res.status(402).json(respObj);
         }
 
-        if (!itemData || itemData == null) {
-            respObj.Message = "Truck/ Trailer not available";
+        let TrailerData = await Trailer.findOne({
+            _id: req.params.trailerId,
+            isBooked: false
+        })
+
+
+        if (!TrailerData || TrailerData == null) {
+            respObj.Message = "Trailer not available";
             return res.status(402).json(respObj);
         }
 
         let booking = await new Booking({
             driverId: req.user._id,
-            [req.params.type + "Id"]: req.params.id,
+            truckId: req.params.truckId,
+            trailerId: req.params.trailerId,
             startTime: new Date(),
             photos: req.body.photos,
             document: req.body.document

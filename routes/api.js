@@ -51,7 +51,7 @@ router.post('/loginDriver', Users.loginDriver);
 
 router.post('/addTruck',passport.authenticate('admin', { session: false }), bookingCtrl.addTruck);
 router.post('/addTrailer',passport.authenticate('admin', { session: false }), bookingCtrl.addTrailer);
-router.post('/bookItem/:type/:id',passport.authenticate('driver', { session: false }), bookingCtrl.bookItem);
+router.post('/bookItem/:truckId/:trailerId',passport.authenticate('driver', { session: false }), bookingCtrl.bookItem);
 router.post('/deliverItem/:bookingId',passport.authenticate('driver', { session: false }), bookingCtrl.deliverItem);
 
 router.get("/getAllTrailers",passport.authenticate('driver', { session: false }),bookingCtrl.getAllTrailers);
