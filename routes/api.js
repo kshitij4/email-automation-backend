@@ -51,6 +51,11 @@ router.post('/loginDriver', Users.loginDriver);
 
 router.post('/addTruck',passport.authenticate('admin', { session: false }), bookingCtrl.addTruck);
 router.post('/addTrailer',passport.authenticate('admin', { session: false }), bookingCtrl.addTrailer);
+router.post('/bookTruck/:truckId',passport.authenticate('driver', { session: false }), bookingCtrl.bookTruck);
+router.post('/bookTrailer/:trailerId',passport.authenticate('driver', { session: false }), bookingCtrl.bookTrailer);
+router.post('/deliverTruck',passport.authenticate('driver', { session: false }), bookingCtrl.deliverTruck);
+router.post('/deliverTrailer/:trailerId',passport.authenticate('driver', { session: false }), bookingCtrl.deliverTrailer);
+
 router.post('/bookItem/:truckId/:trailerId',passport.authenticate('driver', { session: false }), bookingCtrl.bookItem);
 router.post('/deliverItem/:bookingId',passport.authenticate('driver', { session: false }), bookingCtrl.deliverItem);
 

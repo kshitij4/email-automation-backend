@@ -1,30 +1,46 @@
 const mongoose = require('mongoose');
 
-const bookingSchema = new mongoose.Schema({
-    driverId: { type: mongoose.Schema.Types.ObjectId, ref: 'driver' },
-    truckId: { type: mongoose.Schema.Types.ObjectId, ref: 'Truck' },
-    trailerId: { type: mongoose.Schema.Types.ObjectId, ref: 'Trailer' },
-    startTime: Date,
-    endTime: Date,
-    totalMinutes: Number,
+const itemData = {
     status: {
         type: String,
         enum: ['pending', 'delivered'],
         default: 'pending'
     },
-    photos: [{
-        item: String,
+    photos: {
         front: String,
         back: String,
         left: String,
         right: String,
         message: String,
-    }],
-    document: [{
-        item: String,
+    },
+    document: {
         file: String,
         message: String
-    }]
+    }
+}
+
+const bookingSchema = new mongoose.Schema({
+    driverId: { type: mongoose.Schema.Types.ObjectId, ref: 'driver' },
+    truck: {
+        truckId: { type: mongoose.Schema.Types.ObjectId, ref: 'Truck' },
+        ...itemData
+    },
+    trailer: {
+        trailerId: { type: mongoose.Schema.Types.ObjectId, ref: 'Trailer' },
+        ...itemData
+    },
+    returnTrailer: {
+        trailerId: { type: mongoose.Schema.Types.ObjectId, ref: 'Trailer' },
+        ...itemData
+    },
+    startTime: Date,
+    endTime: Date,
+    totalSeconds: Number,
+    status: {
+        type: String,
+        enum: ['pending', 'completed'],
+        default: 'pending'
+    }
 }, {
     timestamps: true
 });
