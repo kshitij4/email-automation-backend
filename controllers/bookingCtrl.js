@@ -530,6 +530,30 @@ async function getAllBookings(req, res) {
     }
 }
 
+async function getCurrBookingData(req, res) {
+    let respObj = {
+        IsSuccess: false,
+        Message: "OK..",
+        Data: null,
+    };
+    try {
+        if (!req.user.currBooking) {
+            respObj.Message = "There is no Booking";
+            return res.status(402).json(respObj);
+        }
+        let bookingsData = await Booking.findById(req.user.currBooking);
+
+        respObj.Data = bookingsData;
+        respObj.IsSuccess = true;
+        return res.status(200).json(respObj);
+
+    } catch (ex) {
+        console.error(ex);
+        respObj.Message = "Server Error.";
+        return res.status(500).json(respObj);
+    }
+}
+
 module.exports = {
     addTruck,
     addTrailer,
@@ -543,5 +567,6 @@ module.exports = {
     deliverTrailer,
     deliverTruck,
     bookTrailer,
-    bookTruck
+    bookTruck,
+    getCurrBookingData
 };
