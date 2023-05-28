@@ -68,7 +68,7 @@ async function bookTruck(req, res) {
             alreadyBook = await Booking.findById(req.user.currBooking);
         }
 
-        if (alreadyBook && alreadyBook.status == 'pending' && alreadyBook.truck && alreadyBook?.truck.status == "pending") {
+        if (alreadyBook && alreadyBook.status == 'pending') {
             respObj.Message = "You already have a truck booked";
             return res.status(402).json(respObj);
         }
@@ -132,7 +132,7 @@ async function bookTrailer(req, res) {
             return res.status(402).json(respObj);
         }
 
-        if (!alreadyBook.trailer) {
+        if (!alreadyBook.trailer?.trailerId) {
             let TrailerData = await Trailer.findOne({
                 _id: req.params.trailerId,
                 isBooked: false
@@ -155,7 +155,7 @@ async function bookTrailer(req, res) {
                 respObj.Message = "Deliver previous truck before booking a new one";
                 return res.status(402).json(respObj);
             }
-            if (alreadyBook.returnTrailer) {
+            if (alreadyBook.returnTrailer?.trailerId) {
                 respObj.Message = "Already Booked max Trailers";
                 return res.status(402).json(respObj);
             }
@@ -203,6 +203,7 @@ async function deliverTruck(req, res) {
             respObj.Message = "There is no Booking";
             return res.status(402).json(respObj);
         }
+        console.log(req.user.currBooking);
         let bookData = await Booking.findById(req.user.currBooking);
 
         if (bookData.status == 'completed') {
@@ -210,22 +211,19 @@ async function deliverTruck(req, res) {
             return res.status(402).json(respObj);
         }
 
-        if (bookData.truck && bookData.trailer && bookData.returnTrailer) {
-            await Booking.updateOne({
-                _id: req.params.bookingId
-            }, [{
-                $set: {
-                    'truck.status': 'delivered',
-                    endTime: new Date(),
-                    totalSeconds: {
-                        $divide: [
-                            { $subtract: [new Date(), '$startTime'] },
-                            1000
-                        ]
-                    },
-                    status: 'completed'
-                }
-            }]);
+        if (bookData.truck?.truckId && bookData.trailer?.trailerId && bookData.returnTrailer?.trailerId &&
+            bookData.truck?.status == "pending" && bookData.trailer?.status == "delivered" && bookData.returnTrailer?.status == "delivered") {
+
+            let startTime = bookData.startTime;
+            const diffMiliSec = Math.abs(new Date() - new Date(startTime));
+            const diffMSec = Math.floor(diffMiliSec / 1000);
+
+            bookData.truck.status = 'delivered';
+            bookData.endTime = new Date();
+            bookData.totalSeconds =  diffMSec;
+            bookData.status = 'completed';
+
+            await bookData.save();
 
             await Truck.updateOne({ _id: bookData.truck.truckId }, { isBooked: false });
         } else {
@@ -267,11 +265,11 @@ async function deliverTrailer(req, res) {
             return res.status(402).json(respObj);
         }
 
-        if(bookData.trailer && bookData.trailer.trailerId == req.params.trailerId){
+        if (req.body.trailerType == '2' && bookData.trailer && bookData.trailer.trailerId == req.params.trailerId) {
             bookData.trailer.status = 'delivered';
-        }else if(bookData.returnTrailer && bookData.returnTrailer.trailerId == req.params.trailerId){
+        } else if (req.body.trailerType == '3' && bookData.returnTrailer && bookData.returnTrailer.trailerId == req.params.trailerId) {
             bookData.returnTrailer.status = 'delivered';
-        }else{
+        } else {
             respObj.Message = "Trailer not found";
             return res.status(402).json(respObj);
         }
