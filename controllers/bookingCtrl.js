@@ -220,7 +220,7 @@ async function deliverTruck(req, res) {
 
             bookData.truck.status = 'delivered';
             bookData.endTime = new Date();
-            bookData.totalSeconds =  diffMSec;
+            bookData.totalSeconds = diffMSec;
             bookData.status = 'completed';
 
             await bookData.save();
@@ -461,8 +461,7 @@ async function getAllDrivers(req, res) {
             path: 'currBooking',
             match: { status: 'pending' },
             populate: [
-                { path: 'truckId', model: 'Truck' },
-                { path: 'trailerId', model: 'Trailer' }
+                { path: 'truck.truckId', model: 'Truck' },
             ]
         }).select('name email phone currBooking');
 
@@ -488,8 +487,9 @@ async function getDriverDetails(req, res) {
             path: 'currBooking',
             match: { status: 'pending' },
             populate: [
-                { path: 'truckId', model: 'Truck' },
-                { path: 'trailerId', model: 'Trailer' }
+                { path: 'truck.truckId', model: 'Truck' },
+                { path: 'trailer.trailerId', model: 'Trailer' },
+                { path: 'returnTrailer.trailerId', model: 'Trailer' },
             ]
         }).select('name email phone currBooking');
 
@@ -511,10 +511,11 @@ async function getAllBookings(req, res) {
         Data: null,
     };
     try {
-        let bookingsData = await Booking.find({ driverId: req.params.driverId, status: 'delivered' })
+        let bookingsData = await Booking.find({ driverId: req.params.driverId, status: 'completed' })
             .populate([
-                { path: 'truckId', model: 'Truck' },
-                { path: 'trailerId', model: 'Trailer' }
+                { path: 'truck.truckId', model: 'Truck' },
+                { path: 'trailer.trailerId', model: 'Trailer' },
+                { path: 'returnTrailer.trailerId', model: 'Trailer' },
             ]).sort('-startTime');
 
         respObj.Data = bookingsData;
