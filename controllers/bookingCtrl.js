@@ -537,7 +537,7 @@ async function getCurrBookingData(req, res) {
     try {
         if (!req.user.currBooking) {
             respObj.Message = "There is no Booking";
-            return res.status(402).json(respObj);
+            return res.status(200).json(respObj);
         }
         let bookingsData = await Booking.findById(req.user.currBooking);
 
